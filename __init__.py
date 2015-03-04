@@ -10,6 +10,8 @@ pwd="pass"
 authenticated= False
 openFile="/home/pyordan/build-master2.6/output/bin/qgis"
 writeText="user is authenticated"
+statusText="<html><head/><body><p><span style=\" font-style:italic; color:#ff2b0f;\">Incorrect username or password</span></p></body></html>"
+
 def sendToprinter(username,password):
     file=open("/home/pyordan/logfile","w+")
     
@@ -24,6 +26,9 @@ def sendToprinter(username,password):
         print "authenticated user"
     else:
         form.username.clear()
+        form.password.clear()
+        form.username.setFocus()
+        form.status_label.setText(statusText)
 
 
 
