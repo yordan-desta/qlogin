@@ -13,7 +13,7 @@ writeText="user is authenticated"
 statusText="<html><head/><body><p><span style=\" font-style:italic; color:#ff2b0f;\">Incorrect username or password</span></p></body></html>"
 
 def sendToprinter(username,password):
-    file=open("/home/pyordan/logfile","w+")
+    file=open("../logfile","w+")
     
     file.write("&*********************&&&**%#$")
 
