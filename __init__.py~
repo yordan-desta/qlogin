@@ -3,6 +3,7 @@ import LoginFormui
 import sys
 from PyQt4.QtCore import  *
 from PyQt4.QtGui import *
+import time
 
 user="root"
 pwd="pass"

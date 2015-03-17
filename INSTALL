@@ -1,0 +1,15 @@
+#loginform installation
+1. make sure the qgis installation dir structure follows:
+	Qgis-install-dir-->{
+			    Qgis-install-dir/bin-dir/qgis_executable_or_bat(for windows)_named_"qgis"
+			    Qgis-install-dir/python-dir
+			    Qgis other directories doesnt matter for the pluginFormInstallation		
+			}
+			  
+2. copy the entire loginform folder("loginform" dir) into Qgis-install-dir/python-dir/
+3. for windows installation it is possible to make a login.bat file and with the following lines in it:
+
+@echo off
+python ../python/loginform/__init__.py
+
+4. save the login.bat file into the Qgis-install-dir/bin-dir
