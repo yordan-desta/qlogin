@@ -41,14 +41,46 @@ def sendToprinter(username,password):
         file.write("")
         file.close()
         app.quit()
-
+""" """
 def ldapConLogin(username,password):
     con = ldap.initialize(server)
     who = str(username)
     cred = str(password)
+    con.protocol_version=ldap.VERSION2
+
     try:
-        con.simple_bind(who, cred)
-        print "authenticated user"
+
+        con.bind("qgis", "P@$$123",ldap.AUTH_SIMPLE)
+        print "bind successful"
+
+        baseDN = "ou=RECS,DC=cadaster,DC=local"
+        searchScope = ldap.SCOPE_SUBTREE
+
+        retrieveAttributes = None
+        searchFilter = "cn=qgis"
+
+        try:
+            ldap_result_id =con.search(baseDN,searchScope,searchFilter,retrieveAttributes)
+
+            result_set = []
+
+            while 1:
+                print "here is the problem"
+                result_type, result_data = con.result(ldap_result_id, 0)
+
+                if (result_data == []):
+                    print "empty result data"
+                    break
+                else:
+                    if result_type == ldap.RES_SEARCH_ENTRY:
+                        result_set.append(result_data)
+            print result_set
+
+        except ldap.INVALID_CREDENTIALS:
+            print "Your username or password is incorrect."
+        except ldap.LDAPError, e:
+            print e
+
     except ldap.INVALID_CREDENTIALS:
         print "invalid credentials"
     except ldap.LDAPError, e:
