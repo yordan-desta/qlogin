@@ -4,7 +4,7 @@ import sys
 from PyQt4.QtCore import  *
 from PyQt4.QtGui import *
 import ldap
-server="LDAP://172.20.0.71"
+server=""
 user="root"
 pwd="pass"
 authenticated= False
@@ -30,14 +30,17 @@ def ldapConLogin(username,password):
         form.username.setFocus()
         form.status_label.setText(emptyStatusText)
     else:
-        con = ldap.initialize(server)
-        user = str(username)
-        pwd = str(password)
-        con.protocol_version=ldap.VERSION2
+        try:
+            con = ldap.initialize(server)
+            user = str(username)
+            pwd = str(password)
+            con.protocol_version=ldap.VERSION2
+        except:
+            print "could not initialize connection with the server"
+            QMessageBox.warning("msg","couldnt initialize connection")
 
         try:
-            print con.bind_s(user, pwd,ldap.AUTH_SIMPLE)
-            print "bind successful"
+            con.bind_s(user, pwd,ldap.AUTH_SIMPLE)
             form.status_label.setText(correctStatusText)
             search(con,user)
 
@@ -122,10 +125,30 @@ def search(con,keyword,uname="",upass=""):
             print e
 
 
+def configSetup():
+    global server
+    try:
+        file=open("config","r+")
+        rline=file.readlines()
+        for line in rline:
+            if line.startswith("#") or line.startswith("\n"):
+                continue
+            else:
+                lsplit=line.split("=")
 
+                if lsplit[0]=="server":
+                    if lsplit[1]=="":
+                        server="LDAP://localhost"
+                    else:
+                        server=lsplit[1]
+        file.close()
+
+    except:
+        pass
 class Form(QDialog,LoginFormui.Ui_loginFormMain):
     def __init__(self,parent=None):
         super(Form,self).__init__(parent)
+        configSetup()
         self.setupUi(self)
         self.connect(self.login_button,SIGNAL("clicked()"),self.logInfunc)
         self.connect(self.cancel_button,SIGNAL("clicked()"),app.quit)

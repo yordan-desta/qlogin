@@ -1,4 +1,6 @@
 #this is a configuration file setup
 #change the values but keep the format the same to meet your desire
 
-server="ldap://localhost:389"
+#this is the server configuration
+#if you leave this empty or commented it will be set to "LDAP://localhost" by default
+server=LDAP://172.20.0.71
