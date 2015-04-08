@@ -14,39 +14,12 @@ writeText="user is authenticated"
 correctStatusText="<html><head/><body><p><span style=\" font-style:italic; color:#35B512;\">Authenticated</span></p></body></html>"
 incorrectStatusText="<html><head/><body><p><span style=\" font-style:italic; color:#ff2b0f;\">Incorrect username or password</span></p></body></html>"
 emptyStatusText="<html><head/><body><p><span style=\" font-style:italic; color:#ff2b0f;\">fields cannot be empty</span></p></body></html>"
-"""
-def sendToprinter(username,password):
-    file=open("../logfile","w+")
 
-    print username,":",password
-
-
-    if (username == user) and (password == pwd):
-        global authenticated
-        authenticated=True
-        print "authenticated user"
-    else:
-        form.username.clear()
-        form.password.clear()
-        form.username.setFocus()
-        form.status_label.setText(statusText)
-
-
-
-    file.write("username@"+str(username) +"\npassword@"+ str(password))
-
-    if(authenticated):
-        form.hide()
-        print "authenticated"
-        file.write(writeText)
-        subprocess.call(openFile)
-        file.write("")
-        file.close()
-        app.quit()
-"""
 ldapAdmin="qgis"
 ldapAdminPass="P@$$123"
 atemptsCount=0
+
+
 
 def ldapConLogin(username,password):
     global atemptsCount
@@ -63,10 +36,10 @@ def ldapConLogin(username,password):
         con.protocol_version=ldap.VERSION2
 
         try:
-            #print con.bind_s(ldapAdmin, ldapAdminPass,ldap.AUTH_SIMPLE)
             print con.bind_s(user, pwd,ldap.AUTH_SIMPLE)
             print "bind successful"
             form.status_label.setText(correctStatusText)
+            search(con,user)
 
             global authenticated
             authenticated=True
@@ -99,18 +72,16 @@ def ldapConLogin(username,password):
             else:
                 print e
 
-def search(con,keyword,uname,upass):
+def search(con,keyword,uname="",upass=""):
 
-    print con.bind_s(ldapAdmin, ldapAdminPass,ldap.AUTH_SIMPLE)
-
-    timeout=3
+    count=0
+    timeout=0
 
     baseDN = "ou=RECS,DC=cadaster,DC=local"
     searchScope = ldap.SCOPE_SUBTREE
 
     retrieveAttributes = None
     searchFilter = "cn=" + keyword
-    #print searchFilter
 
     try:
         ldap_result_id =con.search(baseDN,searchScope,searchFilter,retrieveAttributes)
@@ -125,11 +96,24 @@ def search(con,keyword,uname,upass):
             else:
                 if result_type == ldap.RES_SEARCH_ENTRY:
                     result_set.append(result_data)
-        #print result_set
-        #print "login succesful"
 
-    except ldap.INVALID_CREDENTIALS:
-        print "Your username or password is incorrect."
+        if len(result_set) == 0:
+            print "No Results."
+            return
+        print result_set
+        for i in range(len(result_set)):
+
+            for entry in result_set[i]:
+
+                try:
+                    name = entry[1]['cn'][0]
+                    userName=entry[1]['userPrincipalName'][0]
+                    count = count + 1
+                    print "%d.\nCName: %s\nUserName: %s\n" %\
+                           (count, name,userName)
+                except:
+                    pass
+                    print "here"
 
     except ldap.LDAPError, e:
         if type(e.message) == dict and e.message.has_key('desc'):

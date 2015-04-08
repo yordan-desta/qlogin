@@ -1,0 +1,4 @@
+#this is a configuration file setup
+#change the values but keep the format the same to meet your desire
+
+server="ldap://localhost:389"
