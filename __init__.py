@@ -36,8 +36,7 @@ def ldapConLogin(username,password):
             pwd = str(password)
             con.protocol_version=ldap.VERSION2
         except:
-            print "could not initialize connection with the server"
-            QMessageBox.warning("msg","couldnt initialize connection")
+            form.displayErrorMsg("could not initialize connection with the server")
 
         try:
             con.bind_s(user, pwd,ldap.AUTH_SIMPLE)
@@ -71,6 +70,7 @@ def ldapConLogin(username,password):
                 sys.exit(0)
         except ldap.LDAPError, e:
             if type(e.message) == dict and e.message.has_key('desc'):
+                form.displayErrorMsg(e.message['desc'])
                 print e.message['desc']
             else:
                 print e
@@ -120,6 +120,7 @@ def search(con,keyword,uname="",upass=""):
 
     except ldap.LDAPError, e:
         if type(e.message) == dict and e.message.has_key('desc'):
+            form.displayErrorMsg(e.message['desc'])
             print e.message['desc']
         else:
             print e
@@ -148,6 +149,7 @@ def configSetup():
 class Form(QDialog,LoginFormui.Ui_loginFormMain):
     def __init__(self,parent=None):
         super(Form,self).__init__(parent)
+
         configSetup()
         self.setupUi(self)
         self.connect(self.login_button,SIGNAL("clicked()"),self.logInfunc)
@@ -155,6 +157,8 @@ class Form(QDialog,LoginFormui.Ui_loginFormMain):
 
     def logInfunc(self):
         ldapConLogin(self.username.text(),self.password.text())
+    def displayErrorMsg(self,errorMsg):
+        QMessageBox.warning(self,"Error",errorMsg)
 
 app=QApplication(sys.argv)
 form=Form()
