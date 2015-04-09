@@ -124,9 +124,18 @@ def search(con,keyword,uname="",upass=""):
             print e.message['desc']
         else:
             print e
+class Form(QDialog,LoginFormui.Ui_loginFormMain):
+    def __init__(self,parent=None):
+        super(Form,self).__init__(parent)
+        self.setupUi(self)
+        self.connect(self.login_button,SIGNAL("clicked()"),self.logInfunc)
+        self.connect(self.cancel_button,SIGNAL("clicked()"),app.quit)
 
-
-def configSetup():
+    def logInfunc(self):
+        ldapConLogin(self.username.text(),self.password.text())
+    def displayErrorMsg(self,errorMsg):
+        QMessageBox.warning(self,"Error",errorMsg)
+def constructor():
     global server
     try:
         file=open("config","r+")
@@ -146,19 +155,9 @@ def configSetup():
 
     except:
         pass
-class Form(QDialog,LoginFormui.Ui_loginFormMain):
-    def __init__(self,parent=None):
-        super(Form,self).__init__(parent)
 
-        configSetup()
-        self.setupUi(self)
-        self.connect(self.login_button,SIGNAL("clicked()"),self.logInfunc)
-        self.connect(self.cancel_button,SIGNAL("clicked()"),app.quit)
-
-    def logInfunc(self):
-        ldapConLogin(self.username.text(),self.password.text())
-    def displayErrorMsg(self,errorMsg):
-        QMessageBox.warning(self,"Error",errorMsg)
+if __name__=="__main__":
+    constructor()
 
 app=QApplication(sys.argv)
 form=Form()
