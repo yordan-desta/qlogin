@@ -4,11 +4,13 @@ import sys
 from PyQt4.QtCore import  *
 from PyQt4.QtGui import *
 import ldap
-server=""
-user="root"
-pwd="pass"
+server="LDAP://localhost"
+timeout = 2
+
 authenticated= False
-openFile="../../bin/qgis"
+
+qgisPath="../../bin/qgis"
+
 writeText="user is authenticated"
 
 correctStatusText="<html><head/><body><p><span style=\" font-style:italic; color:#35B512;\">Authenticated</span></p></body></html>"
@@ -52,7 +54,7 @@ def ldapConLogin(username,password):
             if(authenticated):
                 #form.hide()
                 file.write(writeText)
-                #subprocess.call(openFile)
+                #subprocess.call(qgisPath)
                 file.close()
                 file=open("../logfile","w+")
                 file.write("")
@@ -127,35 +129,65 @@ def search(con,keyword,uname="",upass=""):
 class Form(QDialog,LoginFormui.Ui_loginFormMain):
     def __init__(self,parent=None):
         super(Form,self).__init__(parent)
+        if(not serverConnected()):
+            self.displayErrorMsg("please make sure your server \
+is not down\nif this problem continues contact your service administrator \
+or check the configuration file!" ,msgTitle="Connection Error!")
+            sys.exit(0)
         self.setupUi(self)
         self.connect(self.login_button,SIGNAL("clicked()"),self.logInfunc)
         self.connect(self.cancel_button,SIGNAL("clicked()"),app.quit)
 
     def logInfunc(self):
+        pass
         ldapConLogin(self.username.text(),self.password.text())
-    def displayErrorMsg(self,errorMsg):
-        QMessageBox.warning(self,"Error",errorMsg)
+
+    def displayErrorMsg(self,errorMsg,msgTitle="Error"):
+        QMessageBox.warning(self,msgTitle,errorMsg)
 def constructor():
-    global server
+    global server,timeout,qgisPath
     try:
-        file=open("config","r+")
-        rline=file.readlines()
+        file = open("config","r+")
+        rline = file.readlines()
         for line in rline:
             if line.startswith("#") or line.startswith("\n"):
                 continue
-            else:
-                lsplit=line.split("=")
 
+            else:
+                #print line
+                lsplit=line.split("=")
                 if lsplit[0]=="server":
+
                     if lsplit[1]=="":
-                        server="LDAP://localhost"
+                        pass
                     else:
-                        server=lsplit[1]
+                        server=lsplit[1].split("\n")[0]
+
+                if lsplit[0]=="timeout":
+                    if lsplit[1]=="":
+                        pass
+                    else:
+                        timeout=int(lsplit[1].split("\n")[0])
+                if lsplit[0] == "qgisPath":
+                    if lsplit[1]=="":
+                        pass
+                    else:
+                        qgisPath= lsplit[1].split("\n")[0]
         file.close()
 
     except:
         pass
-
+def serverConnected():
+    global timeout,server,qgisPath
+    try:
+        ldapObject = ldap.initialize(server)
+        ldapObject.set_option(ldap.OPT_NETWORK_TIMEOUT,timeout)
+        ldapObject .simple_bind_s()
+        print "con: ",server, " timeout: ",timeout," qgis: ",qgisPath
+        return True
+    except ldap.LDAPError:
+        print "down"
+        return False
 if __name__=="__main__":
     constructor()
 

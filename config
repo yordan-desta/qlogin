@@ -1,6 +1,17 @@
-#this is a configuration file setup
+#this is a configuration file setup. please DO NOT change if not authorized or unsure of the impact.
 #change the values but keep the format the same to meet your desire
 
 #this is the server configuration
-#if you leave this empty or commented it will be set to "LDAP://localhost" by default
+#if you leave this empty or commented it will be set to "LDAP://localhost" by default.uncomment next line to change
+
 server=LDAP://172.20.0.71
+#time out for server response in seconds, default=2.uncomment next line to change
+
+#timeout= 5
+
+#path for qgis.exe or qgis.bat path. NB: the path must be relative to the login file. default, if installed according to the\
+#install instruction is "../../bin/qgis". uncomment next line to change
+#if this path is changed, you should also note that the location of the logfile had to changed inside the qgis source code
+#and recompiled. so please, leave it UNLESS ABSOLUTELY NECESSARY!!
+
+#qgisPath= ../../bin/qgis
